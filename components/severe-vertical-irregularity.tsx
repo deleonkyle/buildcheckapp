@@ -32,7 +32,7 @@ export default function SevereVerticalIrregularity({
     {
       id: "setback",
       title: "Setback",
-      image: "/images/severe-setback?height=100&width=200",
+      image: "/images/severe-setback.png?height=100&width=200",
       description:
         "Apply if the walls of the building do not stack vertically in plan. This irregularity is most severe when the vertical elements of the lateral system at the upper levels are outboard of those at the lower levels. If nonstacking walls are known to be non-structural, this irregularity does not apply. Apply the setback if greater than or equal to 2 feet.",
     },
