@@ -70,7 +70,7 @@ export default function SoilType({
 
           <div className="border rounded-md p-4">
             <img
-              src="/placeholder.svg?height=120&width=400"
+              src="/images/soil-type.png?height=120&width=400"
               alt="Soil type diagram"
               className="w-full h-auto object-contain"
             />
