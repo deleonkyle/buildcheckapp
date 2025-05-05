@@ -18,11 +18,11 @@ export default function Introduction({ onNext }: IntroductionProps) {
 
       <CardContent className="pt-6 px-4 sm:px-6">
         <div className="flex justify-center mb-6">
-          <div className="w-28 h-28 sm:w-32 sm:h-32 bg-blue-100 rounded-full flex items-center justify-center shadow-inner">
+          <div className="w-28 h-28 sm:w-32 sm:h-32 bg-blue-100/60 backdrop-blur-md rounded-full flex items-center justify-center shadow-md ring-1 ring-blue-200">
             <img
               src="/images/logo.webp"
               alt="BuildCheck Logo"
-              className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
+              className="w-14 h-14 sm:w-16 sm:h-16 object-contain opacity-90"
             />
           </div>
         </div>
