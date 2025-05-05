@@ -16,26 +16,11 @@ export default function Introduction({ onNext }: IntroductionProps) {
       <CardContent className="pt-6">
         <div className="flex justify-center mb-6">
           <div className="w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="64"
-              height="64"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-blue-600"
-            >
-              <path d="M3 21h18"></path>
-              <path d="M5 21V7l8-4v18"></path>
-              <path d="M19 21V11l-6-4"></path>
-              <path d="M9 9h1"></path>
-              <path d="M9 12h1"></path>
-              <path d="M9 15h1"></path>
-              <path d="M9 18h1"></path>
-            </svg>
+            <img
+              src="/images/logo.webp"
+              alt="BuildCheck Logo"
+              className="w-16 h-16 object-contain"
+            />
           </div>
         </div>
 
