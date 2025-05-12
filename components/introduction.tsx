@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChevronRight, Shield, CheckCircle } from "lucide-react"
 
 interface IntroductionProps {
   onNext: () => void
@@ -9,47 +10,52 @@ interface IntroductionProps {
 
 export default function Introduction({ onNext }: IntroductionProps) {
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg rounded-2xl overflow-hidden">
-      <CardHeader className="bg-blue-600 text-white py-6">
-        <CardTitle className="text-center text-lg sm:text-xl font-bold">
-          Welcome to BUILDCHECK!
+    <Card className="w-full max-w-md mx-auto shadow-lg rounded-xl border-0 overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-500 text-white py-6 px-6">
+        <CardTitle className="text-center text-xl font-bold flex flex-col items-center gap-3">
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center shadow-md">
+            <img src="/images/logo.webp" alt="BuildCheck Logo" className="w-10 h-10 object-contain" />
+          </div>
+          Welcome to BUILDCHECK
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pt-6 px-4 sm:px-6">
-        <div className="flex justify-center mb-6">
-          <div className="w-28 h-28 sm:w-32 sm:h-32 bg-blue-100/60 backdrop-blur-md rounded-full flex items-center justify-center shadow-md ring-1 ring-blue-200">
-            <img
-              src="/images/logo.webp"
-              alt="BuildCheck Logo"
-              className="w-14 h-14 sm:w-16 sm:h-16 object-contain opacity-90"
-            />
-          </div>
-        </div>
+      <CardContent className="pt-5 px-5 space-y-5">
+        <p className="text-sm leading-relaxed text-gray-700">
+          <span className="font-semibold text-blue-700">BUILDCHECK</span> is a user-friendly tool designed to help
+          engineers, building inspectors, and owners assess structural integrity using FEMA P-154 guidelines. It
+          determines if a building passes Level 1 screening or needs further evaluation.
+        </p>
 
-        <div className="space-y-4 text-sm sm:text-base text-gray-700">
-          <p className="text-justify leading-relaxed">
-            <strong>BUILDCHECK</strong> is a user-friendly tool designed to help engineers, building inspectors, and
-            owners assess structural integrity using FEMA P-154 guidelines. It determines if a building passes Level 1
-            screening or needs further evaluation.
-          </p>
-
-          <div>
-            <p className="font-semibold">Reminders:</p>
-            <ol className="list-decimal pl-5 space-y-1 mt-2">
-              <li>Double-check all inputs before proceeding to the next step.</li>
-              <li>This tool is not a substitute for professional structural analysis.</li>
-              <li>BUILDCHECK only provides preliminary screening.</li>
-              <li>It does not assess material deterioration or seismic performance in detail.</li>
-              <li>Based on the FEMA P-154 High Seismicity Screening Form.</li>
-            </ol>
-          </div>
+        <div className="bg-blue-50 rounded-lg p-4">
+          <h3 className="font-medium text-blue-700 flex items-center gap-2 mb-3">
+            <Shield className="w-4 h-4" />
+            Important Reminders
+          </h3>
+          <ul className="space-y-2.5 text-sm text-gray-700">
+            {[
+              "Double-check all inputs before proceeding to the next step.",
+              "This tool is not a substitute for professional structural analysis.",
+              "BUILDCHECK only provides preliminary screening.",
+              "It does not assess material deterioration or seismic performance in detail.",
+              "Based on the FEMA P-154 High Seismicity Screening Form.",
+            ].map((item, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-end px-4 sm:px-6 pb-4 sm:pb-6">
-        <Button className="w-full sm:w-auto" onClick={onNext}>
-          Next
+      <CardFooter className="px-5 pb-5 pt-2">
+        <Button
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-5 rounded-lg flex items-center justify-center gap-2 transition-all"
+          onClick={onNext}
+        >
+          Get Started
+          <ChevronRight className="w-4 h-4" />
         </Button>
       </CardFooter>
     </Card>
