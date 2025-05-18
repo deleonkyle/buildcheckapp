@@ -1,0 +1,1300 @@
+classdef BUILDCHECK < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                      matlab.ui.Figure
+        Panel9                        matlab.ui.container.Panel
+        StartOverButton               matlab.ui.control.Button
+        FinishButton                  matlab.ui.control.Button
+        BackButton_8                  matlab.ui.control.Button
+        SummaryTextArea               matlab.ui.control.TextArea
+        SummaryTextAreaLabel          matlab.ui.control.Label
+        IntroductionPanel             matlab.ui.container.Panel
+        TextArea_14                   matlab.ui.control.TextArea
+        Image15                       matlab.ui.control.Image
+        NextButton_10                 matlab.ui.control.Button
+        Panel1                        matlab.ui.container.Panel
+        NextButton_8                  matlab.ui.control.Button
+        DateofAssessmentDatePicker    matlab.ui.control.DatePicker
+        DateofAssessmentDatePickerLabel  matlab.ui.control.Label
+        NameofScreenerEditField       matlab.ui.control.EditField
+        NameofScreenerEditFieldLabel  matlab.ui.control.Label
+        AddressEditField              matlab.ui.control.EditField
+        AddressEditFieldLabel         matlab.ui.control.Label
+        BuildingNameEditField         matlab.ui.control.EditField
+        BuildingNameEditFieldLabel    matlab.ui.control.Label
+        Panel2                        matlab.ui.container.Panel
+        NextButton_2                  matlab.ui.control.Button
+        BackButton                    matlab.ui.control.Button
+        TextArea_2                    matlab.ui.control.TextArea
+        BuildingTypeDropDown          matlab.ui.control.DropDown
+        BuildingTypeDropDownLabel     matlab.ui.control.Label
+        Panel3                        matlab.ui.container.Panel
+        Label_5                       matlab.ui.control.Label
+        BackButton_2                  matlab.ui.control.Button
+        NextButton_4                  matlab.ui.control.Button
+        TextArea_7                    matlab.ui.control.TextArea
+        TextArea_6                    matlab.ui.control.TextArea
+        TextArea_5                    matlab.ui.control.TextArea
+        TextArea_4                    matlab.ui.control.TextArea
+        Image5                        matlab.ui.control.Image
+        Image4                        matlab.ui.control.Image
+        Image3                        matlab.ui.control.Image
+        Image2                        matlab.ui.control.Image
+        SevereVerticalIrregularityCheckBox  matlab.ui.control.CheckBox
+        Panel4                        matlab.ui.container.Panel
+        Label_4                       matlab.ui.control.Label
+        BackButton_3                  matlab.ui.control.Button
+        NextButton_3                  matlab.ui.control.Button
+        TextArea_12                   matlab.ui.control.TextArea
+        Image9                        matlab.ui.control.Image
+        TextArea_11                   matlab.ui.control.TextArea
+        Image8                        matlab.ui.control.Image
+        TextArea_10                   matlab.ui.control.TextArea
+        Image7                        matlab.ui.control.Image
+        TextArea_9                    matlab.ui.control.TextArea
+        Image6                        matlab.ui.control.Image
+        ModerateVerticalIrregularityCheckBox  matlab.ui.control.CheckBox
+        Panel5                        matlab.ui.container.Panel
+        Label_3                       matlab.ui.control.Label
+        TextArea_19                   matlab.ui.control.TextArea
+        TextArea_18                   matlab.ui.control.TextArea
+        TextArea_17                   matlab.ui.control.TextArea
+        TextArea_16                   matlab.ui.control.TextArea
+        TextArea_15                   matlab.ui.control.TextArea
+        BackButton_5                  matlab.ui.control.Button
+        NextButton_7                  matlab.ui.control.Button
+        Image14                       matlab.ui.control.Image
+        Image13                       matlab.ui.control.Image
+        Image12                       matlab.ui.control.Image
+        Image11                       matlab.ui.control.Image
+        Image10                       matlab.ui.control.Image
+        PlanIrregularityCheckBox      matlab.ui.control.CheckBox
+        Panel6                        matlab.ui.container.Panel
+        TextArea_20                   matlab.ui.control.TextArea
+        BackButton_4                  matlab.ui.control.Button
+        NextButton_5                  matlab.ui.control.Button
+        YearConstructedDropDown       matlab.ui.control.DropDown
+        YearConstructedDropDownLabel  matlab.ui.control.Label
+        Panel7                        matlab.ui.container.Panel
+        Label_2                       matlab.ui.control.Label
+        Image16                       matlab.ui.control.Image
+        ForSoilTypeEDropDown          matlab.ui.control.DropDown
+        ForSoilTypeEDropDownLabel     matlab.ui.control.Label
+        SoilTypeDropDown_2            matlab.ui.control.DropDown
+        SoilTypeDropDown_2Label       matlab.ui.control.Label
+        BackButton_6                  matlab.ui.control.Button
+        NextButton_9                  matlab.ui.control.Button
+        Panel8                        matlab.ui.container.Panel
+        NextButton_11                 matlab.ui.control.Button
+        BackButton_7                  matlab.ui.control.Button
+        RecommendationTextArea        matlab.ui.control.TextArea
+        RecommendationTextAreaLabel   matlab.ui.control.Label
+        Label                         matlab.ui.control.Label
+        CalculateResultsButton        matlab.ui.control.Button
+    end
+
+    properties (Access = private)
+         InterfaceFlow cell % Stores order of interfaces (e.g., {'SeverePanel', 'SoilPanel'})
+         CurrentInterfaceIndex double % Tracks current visible interface index
+         BuildingData struct         % Stores building type parameters
+         SelectedBuildingType char   % Selected building type (e.g., 'W1')
+         Score double % Calculated score
+         UsedParameters struct % Stores parameters used in calculation
+    end
+    methods (Access = private)
+        
+        function initializeInterfaceFlow(app)
+              if ~isfield(app.BuildingData, app.SelectedBuildingType)
+                  errordlg('Invalid building type.', 'Error');
+                  return;
+              end
+            
+            app.InterfaceFlow = {'IntroductionPanel', 'Panel1', 'Panel2'};
+
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel3'];
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel4'];
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel5'];
+            
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel6'];
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel7'];
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel8'];
+            app.InterfaceFlow = [app.InterfaceFlow, 'Panel9'];
+
+            hideAllPanels(app);
+            app.CurrentInterfaceIndex = 1;
+            app.(app.InterfaceFlow{1}).Visible = 'on';
+        end
+        
+        function hideAllPanels(app)
+            panelNames = { ...
+                'IntroductionPanel', ...
+                'Panel1', 'Panel2', 'Panel3', 'Panel4', ...
+                'Panel5', 'Panel6', 'Panel7', 'Panel8', 'Panel9' ...
+                };
+            
+            for i = 1:length(panelNames)
+                if isprop(app, panelNames{i}) && isvalid(app.(panelNames{i}))
+                    app.(panelNames{i}).Visible = 'off';
+                end
+            end
+        end
+
+        function updateScore(app)
+            currentBuilding = app.BuildingData.(app.SelectedBuildingType);
+            app.Score = currentBuilding.BasicScore;
+            app.UsedParameters = struct('BasicScore', app.Score);
+            
+            if isprop(app, 'SevereVerticalIrregularityCheckBox') && app.SevereVerticalIrregularityCheckBox.Value
+                app.Score = app.Score + currentBuilding.SevereVertical;
+                app.UsedParameters.SevereVertical = currentBuilding.SevereVertical;
+            end
+            if isprop(app, 'ModerateVerticalIrregularityCheckBox') && app.ModerateVerticalIrregularityCheckBox.Value
+                app.Score = app.Score + currentBuilding.ModerateVertical;
+                app.UsedParameters.ModerateVertical = currentBuilding.ModerateVertical;
+            end
+            if isprop(app, 'PlanIrregularityCheckBox') && app.PlanIrregularityCheckBox.Value
+                app.Score = app.Score + currentBuilding.PlanIrregularity;
+                app.UsedParameters.PlanIrregularity = currentBuilding.PlanIrregularity;
+            end
+
+              if isprop(app, 'YearConstructedDropDown')
+                  switch app.YearConstructedDropDown.Value
+                      case 'Before 1972'
+                          if isfield(currentBuilding, 'Precode')
+                              app.Score = app.Score + currentBuilding.Precode;
+                              app.UsedParameters.Precode = currentBuilding.Precode;
+                          end
+                      case 'After 1992'
+                          if isfield(currentBuilding, 'PostBenchmark')
+                              app.Score = app.Score + currentBuilding.PostBenchmark;
+                              app.UsedParameters.PostBenchmark = currentBuilding.PostBenchmark;
+                          end
+                  end
+              end
+
+              if isprop(app, 'SoilTypeDropDown_2') && isprop(app, 'ForSoilTypeEDropDown')
+                  switch app.SoilTypeDropDown_2.Value
+                      case {'Soil Type A', 'Soil Type B'}
+                          if isfield(currentBuilding, 'SoilAB')
+                              app.Score = app.Score + currentBuilding.SoilAB;
+                              app.UsedParameters.SoilAB = currentBuilding.SoilAB;
+                          end
+                      case 'Soil Type E'
+                          storiesValue = app.ForSoilTypeEDropDown.Value;
+                          if strcmp(storiesValue, '1-3 stories') && isfield(currentBuilding, 'SoilE_1to3')
+                              app.Score = app.Score + currentBuilding.SoilE_1to3;
+                              app.UsedParameters.SoilE_1to3 = currentBuilding.SoilE_1to3;
+                          elseif strcmp(storiesValue, '>3 stories') && isfield(currentBuilding, 'SoilE_Over3')
+                              app.Score = app.Score + currentBuilding.SoilE_Over3;
+                              app.UsedParameters.SoilE_Over3 = currentBuilding.SoilE_Over3;
+                          end
+                  end
+              end
+
+              app.Score = max(app.Score, currentBuilding.MinScore);
+        end
+
+        function updateSummaryPanel(app)
+            summary = generateSummary(app);
+            app.SummaryTextArea.Value = summary;
+        end
+
+        function summary = generateSummary(app)
+            summary = sprintf('Building Name: %s\nAddress: %s\n', ...
+                app.BuildingNameEditField.Value, ...
+                app.AddressEditField.Value);
+            summary = [summary sprintf('Building Type: %s\n', ...
+                app.BuildingTypeDropDown.Value)];
+            
+            if app.SevereVerticalIrregularityCheckBox.Value
+                summary = [summary '• Severe Vertical Irregularity\n'];
+            end
+            if app.ModerateVerticalIrregularityCheckBox.Value
+                summary = [summary '• Moderate Vertical Irregularity\n'];
+            end
+            if app.PlanIrregularityCheckBox.Value
+                summary = [summary '• Plan Irregularity\n'];
+            end
+
+             summary = [summary sprintf('Year Constructed: %s\nSoil Type: %s', ...
+                 app.YearConstructedDropDown.Value, ...
+                 app.SoilTypeDropDown_2.Value)];
+             
+             if strcmp(app.SoilTypeDropDown_2.Value, 'Soil Type E')
+                 summary = [summary sprintf(' (%s)\n', app.ForSoilTypeEDropDown.Value)];
+             else
+                 summary = [summary '\n'];
+             end
+
+             updateScore(app);
+
+             summary = [summary '\n------------------------\n'];
+             summary = [summary sprintf('FINAL SCORE: %.1f\n\n', app.Score)];
+             
+             if app.Score > 2
+                 summary = [summary 'RESULT: LEVEL 1 PASSED'];
+             else
+                 summary = [summary 'RESULT: LEVEL 1 FAILED'];
+             end
+             summary = strrep(summary, '\n', newline);
+        end
+    end
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Code that executes after component creation
+        function startupFcn(app)
+        app.BuildingData = struct(...
+    'W1', struct(...
+        'BasicScore', 3.6, ...
+        'SevereVertical', -1.2, ...
+        'ModerateVertical', -0.7, ...
+        'PlanIrregularity', -1.1, ...
+        'Precode', -1.1, ...
+        'PostBenchmark', 1.6, ...
+        'SoilAB', 0.1, ...
+        'SoilE_1to3', 0.2, ...
+        'SoilE_Over3', -0.3, ...
+        'MinScore', 1.1 ...
+    ), ...
+    'W1A', struct(...
+        'BasicScore', 3.2, ...
+        'SevereVertical', -1.2, ...
+        'ModerateVertical', -0.7, ...
+        'PlanIrregularity', -1.0, ...
+        'Precode', -1.0, ...
+        'PostBenchmark', 1.9, ...
+        'SoilAB', 0.3, ...
+        'SoilE_1to3', 0.2, ...
+        'SoilE_Over3', -0.6, ...
+        'MinScore', 0.9 ...
+    ), ...
+    'W2', struct(...
+        'BasicScore', 2.9, ...
+        'SevereVertical', -1.2, ...
+        'ModerateVertical', -0.7, ...
+        'PlanIrregularity', -1.0, ...
+        'Precode', -0.9, ...
+        'PostBenchmark', 2.2, ...
+        'SoilAB', 0.5, ...
+        'SoilE_1to3', 0.1, ...
+        'SoilE_Over3', -0.9, ...
+        'MinScore', 0.7 ...
+    ), ...
+    'S1_MRF', struct(...
+        'BasicScore', 2.1, ...
+        'SevereVertical', -1.0, ...
+        'ModerateVertical', -0.6, ...
+        'PlanIrregularity', -0.8, ...
+        'Precode', -0.6, ...
+        'PostBenchmark', 1.4, ...
+        'SoilAB', 0.4, ...
+        'SoilE_1to3', -0.2, ...
+        'SoilE_Over3', -0.6, ...
+        'MinScore', 0.5 ...
+    ), ...
+    'S2_BR', struct(...
+        'BasicScore', 2.0, ...
+        'SevereVertical', -1.0, ...
+        'ModerateVertical', -0.6, ...
+        'PlanIrregularity', -0.7, ...
+        'Precode', -0.6, ...
+        'PostBenchmark', 1.4, ...
+        'SoilAB', 0.6, ...
+        'SoilE_1to3', -0.4, ...
+        'SoilE_Over3', -0.6, ...
+        'MinScore', 0.5 ...
+    ), ...
+    'S3_LM', struct(...
+        'BasicScore', 2.6, ...
+        'SevereVertical', -1.1, ...
+        'ModerateVertical', -0.7, ...
+        'PlanIrregularity', -0.9, ...
+        'Precode', -0.8, ...
+        'PostBenchmark', 1.1, ...
+        'SoilAB', 0.1, ...
+        'SoilE_1to3', 0.2, ...
+        'SoilE_Over3', 0, ...  
+        'MinScore', 0.6 ...
+    ), ...
+    'S4_RCSW', struct(...
+        'BasicScore', 2.0, ...
+        'SevereVertical', -1.0, ...
+        'ModerateVertical', -0.6, ...
+        'PlanIrregularity', -0.7, ...
+        'Precode', -0.6, ...
+        'PostBenchmark', 1.9, ...
+        'SoilAB', 0.6, ...
+        'SoilE_1to3', -0.1, ...
+        'SoilE_Over3', -0.6, ...
+        'MinScore', 0.5 ...
+    ), ...
+    'S5_URMINF', struct(...
+        'BasicScore', 1.7, ...
+        'SevereVertical', -0.8, ...
+        'ModerateVertical', -0.5, ...
+        'PlanIrregularity', -0.6, ...
+        'Precode', -0.2, ...
+        'PostBenchmark', 0, ...
+        'SoilAB', 0.5, ...
+        'SoilE_1to3', -0.4, ...
+        'SoilE_Over3', -0.4, ...
+        'MinScore', 0.5 ...
+    ), ...
+    'C1_MRF', struct(...
+        'BasicScore', 1.5, ...
+        'SevereVertical', -0.9, ...
+        'ModerateVertical', -0.5, ...
+        'PlanIrregularity', -0.6, ...
+        'Precode', -0.4, ...
+        'PostBenchmark', 1.9, ...
+        'SoilAB', 0.4, ...
+        'SoilE_1to3', 0, ...
+        'SoilE_Over3', -0.5, ...
+        'MinScore', 0.3 ...
+    ), ...
+    'C2_SW', struct(...
+        'BasicScore', 2.0, ...
+        'SevereVertical', -1.0, ...
+        'ModerateVertical', -0.6, ...
+        'PlanIrregularity', -0.8, ...
+        'Precode', -0.7, ...
+        'PostBenchmark', 2.1, ...
+        'SoilAB', 0.5, ...
+        'SoilE_1to3', 0, ...
+        'SoilE_Over3', -0.7, ...
+        'MinScore', 0.3 ...
+    ), ...
+    'C3_URMINF', struct(...
+        'BasicScore', 1.2, ...
+        'SevereVertical', -0.7, ...
+        'ModerateVertical', -0.4, ...
+        'PlanIrregularity', -0.5, ...
+        'Precode', -0.1, ...
+        'PostBenchmark', 0, ...
+        'SoilAB', 0.3, ...
+        'SoilE_1to3', -0.2, ...
+        'SoilE_Over3', -0.3, ...
+        'MinScore', 0.3 ...
+    ), ...
+    'PC1_TU', struct(...
+        'BasicScore', 1.6, ...
+        'SevereVertical', -1.0, ...
+        'ModerateVertical', -0.6, ...
+        'PlanIrregularity', -0.7, ...
+        'Precode', -0.5, ...
+        'PostBenchmark', 2.0, ...
+        'SoilAB', 0.6, ...
+        'SoilE_1to3', -0.3, ...
+        'SoilE_Over3', 0, ...
+        'MinScore', 0.2 ...
+    ), ...
+    'PC2', struct(...
+        'BasicScore', 1.4, ...
+        'SevereVertical', -0.9, ...
+        'ModerateVertical', -0.5, ...
+        'PlanIrregularity', -0.6, ...
+        'Precode', -0.3, ...
+        'PostBenchmark', 2.4, ...
+        'SoilAB', 0.4, ...
+        'SoilE_1to3', -0.1, ...
+        'SoilE_Over3', -0.4, ...
+        'MinScore', 0.2 ...
+    ), ...
+    'RM1_FC', struct(...
+        'BasicScore', 1.7, ...
+        'SevereVertical', -0.9, ...
+        'ModerateVertical', -0.5, ...
+        'PlanIrregularity', -0.7, ...
+        'Precode', -0.5, ...
+        'PostBenchmark', 2.1, ...
+        'SoilAB', 0.5, ...
+        'SoilE_1to3', -0.1, ...
+        'SoilE_Over3', -0.5, ...
+        'MinScore', 0.3 ...
+    ), ...
+    'RM2_RD', struct(...
+        'BasicScore', 1.7, ...
+        'SevereVertical', -0.9, ...
+        'ModerateVertical', -0.5, ...
+        'PlanIrregularity', -0.7, ...
+        'Precode', -0.5, ...
+        'PostBenchmark', 2.1, ...
+        'SoilAB', 0.5, ...
+        'SoilE_1to3', -0.1, ...
+        'SoilE_Over3', -0.6, ...
+        'MinScore', 0.3 ...
+    ), ...
+    'URM', struct(...
+        'BasicScore', 1.0, ...
+        'SevereVertical', -0.7, ...
+        'ModerateVertical', -0.4, ...
+        'PlanIrregularity', -0.4, ...
+        'Precode', 0, ...
+        'PostBenchmark', 0, ...
+        'SoilAB', 0.3, ...
+        'SoilE_1to3', -0.2, ...
+        'SoilE_Over3', -0.2, ...
+        'MinScore', 0.2 ...
+    ), ...
+    'MH', struct(...
+        'BasicScore', 1.5, ...
+        'SevereVertical', 0, ...
+        'ModerateVertical', 0, ...
+        'PlanIrregularity', 0, ...
+        'Precode', -0.1, ...
+        'PostBenchmark', 1.2, ...
+        'SoilAB', 0.3, ...
+        'SoilE_1to3', -0.4, ...
+        'SoilE_Over3', 0, ...
+        'MinScore', 1.0 ...
+    ) ...
+);
+            app.CurrentInterfaceIndex = 1;
+            app.Score = 0;
+            app.UsedParameters = struct();
+            app.SelectedBuildingType = '';
+            app.CurrentInterfaceIndex = 1;
+            app.InterfaceFlow = {'IntroductionPanel', 'Panel1', 'Panel2', 'Panel3', 'Panel4', 'Panel 5', 'Panel6', 'Panel7', 'Panel8', 'Panel9'};
+            
+            hideAllPanels(app);
+            app.IntroductionPanel.Visible = 'on';
+        end
+
+        % Callback function: NextButton_10, NextButton_2, NextButton_3, 
+        % ...and 7 other components
+        function NextButtonPushed(app, event)
+            try
+                currentPanel = app.InterfaceFlow{app.CurrentInterfaceIndex};
+                app.(currentPanel).Visible = 'off';
+                app.CurrentInterfaceIndex = app.CurrentInterfaceIndex + 1;
+                
+                nextPanel = app.InterfaceFlow{app.CurrentInterfaceIndex};
+                app.(nextPanel).Visible = 'on';
+
+                 if strcmp(currentPanel, 'Panel9')
+                     updateSummaryPanel(app);
+                 end
+
+            catch ME
+                errordlg(['Navigation error: ' ME.message], 'Error');
+            end
+            
+        end
+
+        % Drop down opening function: BuildingTypeDropDown
+        function BuildingTypeDropDownOpening(app, event)
+                 app.SelectedBuildingType = app.BuildingTypeDropDown.Value; 
+        end
+
+        % Callback function: BackButton, BackButton_2, BackButton_3, 
+        % ...and 5 other components
+        function BackButtonPushed(app, event)
+            try
+                currentPanel = app.InterfaceFlow{app.CurrentInterfaceIndex};
+                app.(currentPanel).Visible = 'off';
+                app.CurrentInterfaceIndex = max(1, app.CurrentInterfaceIndex - 1);
+                prevPanel = app.InterfaceFlow{app.CurrentInterfaceIndex};
+                app.(prevPanel).Visible = 'on';
+            catch ME
+                errordlg(['Back navigation failed: ' ME.message], 'Navigation Error');
+                hideAllPanels(app);
+                app.IntroductionPanel.Visible = 'on';
+                app.CurrentInterfaceIndex = 1;
+            end
+        end
+
+        % Value changed function: YearConstructedDropDown
+        function YearConstructedDropDownValueChanged(app, event)
+        try
+            switch app.YearConstructedDropDown.Value
+                case 'Before 1972'
+                    app.TextArea_20.Value = 'PRE-CODE';
+                    app.TextArea_20.BackgroundColor = [1 0.8 0.8];
+                case '1972 - 1992'
+                    app.TextArea_20.Value = 'TRANSITION';
+                    app.TextArea_20.BackgroundColor = [0.8 0.8 1];
+                case 'After 1992'
+                    app.TextArea_20.Value = 'POST-BENCHMARK';
+                    app.TextArea_20.BackgroundColor = [0.8 1 0.8];
+            end
+            updateScore(app);
+        catch ME
+              errordlg(['Date selection error: ' ME.message], 'System Error');
+        end
+        end
+
+        % Drop down opening function: SoilTypeDropDown_2
+        function SoilTypeSoilTypeDropDown_2(app, event)
+             soilType = app.SoilTypeDropDown_2.Value;
+             app.ForSoilTypeEDropDown.Visible = strcmp(soilType, 'Soil Type E');
+             updateScore(app);
+        end
+
+        % Value changed function: BuildingTypeDropDown
+        function BuildingTypeDropDownValueChanged(app, event)
+            app.SelectedBuildingType = strtrim(app.BuildingTypeDropDown.Value);
+
+             if isfield(app.BuildingData, app.SelectedBuildingType)
+                 initializeInterfaceFlow(app);
+                 hideAllPanels(app);
+                 app.Panel2.Visible = 'on';
+             else
+                 errordlg('Invalid building type selected.', 'Error');
+             end
+        end
+
+        % Value changed function: SevereVerticalIrregularityCheckBox
+        function SevereVerticalIrregularityCheckBoxValueChanged(app, event)
+            app.UsedParameters.SevereVertical = app.SevereVerticalIrregularityCheckBox.Value;
+            updateScore(app);
+        end
+
+        % Value changed function: ModerateVerticalIrregularityCheckBox
+        function ModerateVerticalIrregularityCheckBoxValueChanged(app, event)
+            app.UsedParameters.ModerateVertical = app.ModerateVerticalIrregularityCheckBox.Value;
+            updateScore(app);
+        end
+
+        % Value changed function: PlanIrregularityCheckBox
+        function PlanIrregularityCheckBoxValueChanged(app, event)
+            app.UsedParameters.PlanIrregularity = app.PlanIrregularityCheckBox.Value;
+            updateScore(app);
+        end
+
+        % Value changed function: ForSoilTypeEDropDown
+        function ForSoilTypeEDropDownValueChanged(app, event)
+            app.UsedParameters.SoilEStories = app.ForSoilTypeEDropDown.Value;
+            updateScore(app);
+        end
+
+        % Value changed function: BuildingNameEditField
+        function BuildingNameEditFieldValueChanged(app, event)
+
+        end
+
+        % Value changed function: AddressEditField
+        function AddressEditFieldValueChanged(app, event)
+           
+        end
+
+        % Value changed function: NameofScreenerEditField
+        function NameofScreenerEditFieldValueChanged(app, event)
+            
+        end
+
+        % Value changed function: DateofAssessmentDatePicker
+        function DateofAssessmentDatePickerValueChanged(app, event)
+           try
+               if ~isdatetime(app.DateofAssessmentDatePicker.Value)
+                   app.DateofAssessmentDatePicker.Value = datetime(app.DateofAssessmentDatePicker.Value, 'ConvertFrom', 'datenum');
+               end
+           catch ME
+               errordlg(['Invalid date selected: ' ME.message], 'Date Error');
+               app.DateofAssessmentDatePicker.Value = datetime('today');
+           end
+        end
+
+        % Button pushed function: CalculateResultsButton
+        function CalculateResultsButtonPushed(app, event)
+             updateScore(app);
+             if app.Score > 2
+                app.Label.Text = "LEVEL 1 PASSED";
+                app.Label.FontColor = [0 0.7 0];
+             else
+                 app.Label.Text = "LEVEL 1 FAILED";
+                 app.Label.FontColor = [1 0 0];
+                 app.RecommendationTextArea.Value = 'Proceed to Level 2 Assessment and consult a licensed structural engineer for detailed evaluation.';
+             end
+                 updateSummaryPanel(app);
+                 app.Panel8.Visible = 'on';
+        end
+
+        % Button pushed function: BackButton_8
+        function BackButton_SummaryPushed(app, event)
+            hideAllPanels(app);
+            app.Panel8.Visible = 'on';
+        end
+
+        % Button pushed function: FinishButton
+        function FinishButtonPushed(app, event)
+            delete(app.UIFigure);
+        end
+
+        % Button pushed function: StartOverButton
+        function StartOverButtonPushed(app, event)
+              app.BuildingNameEditField.Value = '';
+              app.AddressEditField.Value = '';
+              app.NameofScreenerEditField.Value = '';
+              app.DateofAssessmentDatePicker.Value = datetime('today');
+              app.SevereVerticalIrregularityCheckBox.Value = false;
+              app.ModerateVerticalIrregularityCheckBox.Value = false;
+              app.PlanIrregularityCheckBox.Value = false;
+              app.BuildingTypeDropDown.Value = app.BuildingTypeDropDown.Items{1};
+              app.YearConstructedDropDown.Value = 'Before 1972';
+              app.SoilTypeDropDown_2.Value = 'Soil Type A';
+              app.ForSoilTypeEDropDown.Value = '1-3 stories';
+              app.Label.Text = "Results";
+              app.RecommendationTextArea.Value = '';
+              app.Score = 0;
+              app.UsedParameters = struct();
+
+              hideAllPanels(app);
+              app.Panel1.Visible = 'on';
+
+              app.CurrentInterfaceIndex = 1;
+        end
+
+        % Button pushed function: NextButton_11
+        function NextButton_11Pushed(app, event)
+            updateSummaryPanel(app);
+
+            app.Panel8.Visible = 'off';
+            app.Panel9.Visible = 'on';
+            app.CurrentInterfaceIndex = find(strcmp(app.InterfaceFlow, 'Panel9'));
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Get the file path for locating images
+            pathToMLAPP = fileparts(mfilename('fullpath'));
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 729 541];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create Panel8
+            app.Panel8 = uipanel(app.UIFigure);
+            app.Panel8.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel8.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel8.BorderWidth = 3;
+            app.Panel8.Title = 'Results';
+            app.Panel8.BackgroundColor = [1 1 1];
+            app.Panel8.FontWeight = 'bold';
+            app.Panel8.Position = [4 3 724 539];
+
+            % Create CalculateResultsButton
+            app.CalculateResultsButton = uibutton(app.Panel8, 'push');
+            app.CalculateResultsButton.ButtonPushedFcn = createCallbackFcn(app, @CalculateResultsButtonPushed, true);
+            app.CalculateResultsButton.Position = [298 241 108 22];
+            app.CalculateResultsButton.Text = 'Calculate Results';
+
+            % Create Label
+            app.Label = uilabel(app.Panel8);
+            app.Label.HorizontalAlignment = 'center';
+            app.Label.FontName = 'Cooper Black';
+            app.Label.FontSize = 14;
+            app.Label.FontWeight = 'bold';
+            app.Label.Position = [284 417 142 24];
+            app.Label.Text = '';
+
+            % Create RecommendationTextAreaLabel
+            app.RecommendationTextAreaLabel = uilabel(app.Panel8);
+            app.RecommendationTextAreaLabel.HorizontalAlignment = 'right';
+            app.RecommendationTextAreaLabel.FontWeight = 'bold';
+            app.RecommendationTextAreaLabel.Position = [143 363 106 22];
+            app.RecommendationTextAreaLabel.Text = 'Recommendation';
+
+            % Create RecommendationTextArea
+            app.RecommendationTextArea = uitextarea(app.Panel8);
+            app.RecommendationTextArea.Position = [264 302 180 85];
+
+            % Create BackButton_7
+            app.BackButton_7 = uibutton(app.Panel8, 'push');
+            app.BackButton_7.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton_7.Position = [94 43 100 22];
+            app.BackButton_7.Text = 'Back';
+
+            % Create NextButton_11
+            app.NextButton_11 = uibutton(app.Panel8, 'push');
+            app.NextButton_11.ButtonPushedFcn = createCallbackFcn(app, @NextButton_11Pushed, true);
+            app.NextButton_11.Position = [516 36 100 22];
+            app.NextButton_11.Text = 'Next';
+
+            % Create Panel7
+            app.Panel7 = uipanel(app.UIFigure);
+            app.Panel7.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel7.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel7.BorderWidth = 3;
+            app.Panel7.Title = 'Soil Type';
+            app.Panel7.BackgroundColor = [1 1 1];
+            app.Panel7.FontWeight = 'bold';
+            app.Panel7.Position = [5 3 723 539];
+
+            % Create NextButton_9
+            app.NextButton_9 = uibutton(app.Panel7, 'push');
+            app.NextButton_9.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_9.Position = [529 56 100 22];
+            app.NextButton_9.Text = 'Next';
+
+            % Create BackButton_6
+            app.BackButton_6 = uibutton(app.Panel7, 'push');
+            app.BackButton_6.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton_6.Position = [102 55 100 22];
+            app.BackButton_6.Text = 'Back';
+
+            % Create SoilTypeDropDown_2Label
+            app.SoilTypeDropDown_2Label = uilabel(app.Panel7);
+            app.SoilTypeDropDown_2Label.HorizontalAlignment = 'right';
+            app.SoilTypeDropDown_2Label.Position = [264 406 54 22];
+            app.SoilTypeDropDown_2Label.Text = 'Soil Type';
+
+            % Create SoilTypeDropDown_2
+            app.SoilTypeDropDown_2 = uidropdown(app.Panel7);
+            app.SoilTypeDropDown_2.Items = {'Select', 'Soil Type A', 'Soil Type B', 'Soil Type C', 'Soil Type D', 'Soil Type E', 'Soil Type F'};
+            app.SoilTypeDropDown_2.DropDownOpeningFcn = createCallbackFcn(app, @SoilTypeSoilTypeDropDown_2, true);
+            app.SoilTypeDropDown_2.Position = [333 406 100 22];
+            app.SoilTypeDropDown_2.Value = 'Select';
+
+            % Create ForSoilTypeEDropDownLabel
+            app.ForSoilTypeEDropDownLabel = uilabel(app.Panel7);
+            app.ForSoilTypeEDropDownLabel.HorizontalAlignment = 'right';
+            app.ForSoilTypeEDropDownLabel.Position = [229 350 87 22];
+            app.ForSoilTypeEDropDownLabel.Text = 'For Soil Type E';
+
+            % Create ForSoilTypeEDropDown
+            app.ForSoilTypeEDropDown = uidropdown(app.Panel7);
+            app.ForSoilTypeEDropDown.Items = {'Select', '1-3 stories', '>3 stories'};
+            app.ForSoilTypeEDropDown.ValueChangedFcn = createCallbackFcn(app, @ForSoilTypeEDropDownValueChanged, true);
+            app.ForSoilTypeEDropDown.Position = [331 350 100 22];
+            app.ForSoilTypeEDropDown.Value = 'Select';
+
+            % Create Image16
+            app.Image16 = uiimage(app.Panel7);
+            app.Image16.Position = [82 125 446 121];
+            app.Image16.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-04-02 225228.png');
+
+            % Create Label_2
+            app.Label_2 = uilabel(app.Panel7);
+            app.Label_2.Position = [82 122 500 22];
+            app.Label_2.Text = 'Reminder: If there is no basis for classifying the soil type, Soil Type D should be assumed.  ';
+
+            % Create Panel6
+            app.Panel6 = uipanel(app.UIFigure);
+            app.Panel6.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel6.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel6.BorderWidth = 3;
+            app.Panel6.Title = 'Building Age';
+            app.Panel6.BackgroundColor = [1 1 1];
+            app.Panel6.FontWeight = 'bold';
+            app.Panel6.Position = [5 3 723 539];
+
+            % Create YearConstructedDropDownLabel
+            app.YearConstructedDropDownLabel = uilabel(app.Panel6);
+            app.YearConstructedDropDownLabel.HorizontalAlignment = 'right';
+            app.YearConstructedDropDownLabel.Position = [241 364 97 22];
+            app.YearConstructedDropDownLabel.Text = 'Year Constructed';
+
+            % Create YearConstructedDropDown
+            app.YearConstructedDropDown = uidropdown(app.Panel6);
+            app.YearConstructedDropDown.Items = {'Select', 'Before 1972', '1972 - 1992', 'After 1992'};
+            app.YearConstructedDropDown.ValueChangedFcn = createCallbackFcn(app, @YearConstructedDropDownValueChanged, true);
+            app.YearConstructedDropDown.Position = [353 364 100 22];
+            app.YearConstructedDropDown.Value = 'Select';
+
+            % Create NextButton_5
+            app.NextButton_5 = uibutton(app.Panel6, 'push');
+            app.NextButton_5.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_5.Position = [558 33 100 22];
+            app.NextButton_5.Text = 'Next';
+
+            % Create BackButton_4
+            app.BackButton_4 = uibutton(app.Panel6, 'push');
+            app.BackButton_4.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton_4.Position = [67 36 100 22];
+            app.BackButton_4.Text = 'Back';
+
+            % Create TextArea_20
+            app.TextArea_20 = uitextarea(app.Panel6);
+            app.TextArea_20.Editable = 'off';
+            app.TextArea_20.HorizontalAlignment = 'center';
+            app.TextArea_20.FontWeight = 'bold';
+            app.TextArea_20.BackgroundColor = [1 0.8039 0.7216];
+            app.TextArea_20.Position = [270 304 150 20];
+            app.TextArea_20.Value = {'PRECODE'};
+
+            % Create Panel5
+            app.Panel5 = uipanel(app.UIFigure);
+            app.Panel5.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel5.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel5.BorderWidth = 3;
+            app.Panel5.Title = 'Plan Irregularity';
+            app.Panel5.BackgroundColor = [1 1 1];
+            app.Panel5.FontWeight = 'bold';
+            app.Panel5.Position = [4 3 724 539];
+
+            % Create PlanIrregularityCheckBox
+            app.PlanIrregularityCheckBox = uicheckbox(app.Panel5);
+            app.PlanIrregularityCheckBox.ValueChangedFcn = createCallbackFcn(app, @PlanIrregularityCheckBoxValueChanged, true);
+            app.PlanIrregularityCheckBox.Text = 'Plan Irregularity';
+            app.PlanIrregularityCheckBox.Position = [93 472 106 22];
+
+            % Create Image10
+            app.Image10 = uiimage(app.Panel5);
+            app.Image10.Position = [82 199 251 72];
+            app.Image10.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 014242.png');
+
+            % Create Image11
+            app.Image11 = uiimage(app.Panel5);
+            app.Image11.Position = [104 103 217 107];
+            app.Image11.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 014238.png');
+
+            % Create Image12
+            app.Image12 = uiimage(app.Panel5);
+            app.Image12.Position = [94 259 235 122];
+            app.Image12.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 014232.png');
+
+            % Create Image13
+            app.Image13 = uiimage(app.Panel5);
+            app.Image13.Position = [104 63 217 60];
+            app.Image13.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 014226.png');
+
+            % Create Image14
+            app.Image14 = uiimage(app.Panel5);
+            app.Image14.Position = [93 363 237 86];
+            app.Image14.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 014216.png');
+
+            % Create NextButton_7
+            app.NextButton_7 = uibutton(app.Panel5, 'push');
+            app.NextButton_7.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_7.Position = [506 36 100 22];
+            app.NextButton_7.Text = 'Next';
+
+            % Create BackButton_5
+            app.BackButton_5 = uibutton(app.Panel5, 'push');
+            app.BackButton_5.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton_5.Position = [83 34 100 22];
+            app.BackButton_5.Text = 'Back';
+
+            % Create TextArea_15
+            app.TextArea_15 = uitextarea(app.Panel5);
+            app.TextArea_15.Editable = 'off';
+            app.TextArea_15.FontSize = 10.5;
+            app.TextArea_15.FontAngle = 'italic';
+            app.TextArea_15.Position = [358 371 284 75];
+            app.TextArea_15.Value = {'Apply if there is good lateral resistance in one direction, but not the other, or if there is eccentric stiffness in plan (as shown in Figures (a) and (b); solid walls on two or three sides with walls with lots of openings on the remaining sides).'};
+
+            % Create TextArea_16
+            app.TextArea_16 = uitextarea(app.Panel5);
+            app.TextArea_16.Editable = 'off';
+            app.TextArea_16.FontSize = 10;
+            app.TextArea_16.FontAngle = 'italic';
+            app.TextArea_16.Position = [358 73 282 43];
+            app.TextArea_16.Value = {'Apply if the sides of the building do not form 90- degree angles.'};
+
+            % Create TextArea_17
+            app.TextArea_17 = uitextarea(app.Panel5);
+            app.TextArea_17.Editable = 'off';
+            app.TextArea_17.FontSize = 10.5;
+            app.TextArea_17.FontAngle = 'italic';
+            app.TextArea_17.Position = [358 288 284 67];
+            app.TextArea_17.Value = {'Apply if there is a reentrant corner, i.e., the building is L, U, T, or + shaped, with projections of more than 20 feet. Where possible, check to see if there are seismic separations where the wings meet. If so, evaluate for pounding.'};
+
+            % Create TextArea_18
+            app.TextArea_18 = uitextarea(app.Panel5);
+            app.TextArea_18.Editable = 'off';
+            app.TextArea_18.FontSize = 10;
+            app.TextArea_18.FontAngle = 'italic';
+            app.TextArea_18.Position = [358 150 284 43];
+            app.TextArea_18.Value = {'Apply if there is an opening that has a width of over 50% of the width of the diaphragm at any level.'};
+
+            % Create TextArea_19
+            app.TextArea_19 = uitextarea(app.Panel5);
+            app.TextArea_19.Editable = 'off';
+            app.TextArea_19.FontSize = 10.5;
+            app.TextArea_19.FontAngle = 'italic';
+            app.TextArea_19.Position = [358 208 284 60];
+            app.TextArea_19.Value = {'Apply if the exterior beams do not align with the columns in plan. Typically, this applies to concrete buildings, where the perimeter columns are outboard of the perimeter beams.'};
+
+            % Create Label_3
+            app.Label_3 = uilabel(app.Panel5);
+            app.Label_3.FontColor = [1 0 0];
+            app.Label_3.Position = [203 467 371 22];
+            app.Label_3.Text = 'Check box if a type of Plan Irregularity is applicable on the building. ';
+
+            % Create Panel4
+            app.Panel4 = uipanel(app.UIFigure);
+            app.Panel4.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel4.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel4.BorderWidth = 3;
+            app.Panel4.Title = 'Moderate Vertical Irregularity';
+            app.Panel4.BackgroundColor = [1 1 1];
+            app.Panel4.ButtonDownFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.Panel4.FontWeight = 'bold';
+            app.Panel4.Position = [3 3 725 539];
+
+            % Create ModerateVerticalIrregularityCheckBox
+            app.ModerateVerticalIrregularityCheckBox = uicheckbox(app.Panel4);
+            app.ModerateVerticalIrregularityCheckBox.ValueChangedFcn = createCallbackFcn(app, @ModerateVerticalIrregularityCheckBoxValueChanged, true);
+            app.ModerateVerticalIrregularityCheckBox.Text = 'Moderate Vertical Irregularity';
+            app.ModerateVerticalIrregularityCheckBox.Position = [64 461 175 22];
+
+            % Create Image6
+            app.Image6 = uiimage(app.Panel4);
+            app.Image6.Position = [65 362 213 86];
+            app.Image6.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-29 232328.png');
+
+            % Create TextArea_9
+            app.TextArea_9 = uitextarea(app.Panel4);
+            app.TextArea_9.Editable = 'off';
+            app.TextArea_9.FontAngle = 'italic';
+            app.TextArea_9.Position = [309 372 361 62];
+            app.TextArea_9.Value = {'Apply if there is more than a one-story slope from one side of the building to the other. Evaluate as Severe for W1 buildings as shown in Figure (a) evaluate as Moderate for all other building types as shown in Figure (b).'};
+
+            % Create Image7
+            app.Image7 = uiimage(app.Panel4);
+            app.Image7.Position = [64 108 213 86];
+            app.Image7.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 013428.png');
+
+            % Create TextArea_10
+            app.TextArea_10 = uitextarea(app.Panel4);
+            app.TextArea_10.Editable = 'off';
+            app.TextArea_10.FontAngle = 'italic';
+            app.TextArea_10.Position = [309 122 361 60];
+            app.TextArea_10.Value = {'Apply if the floors of the building do not align or if there is a step in the roof level.'};
+
+            % Create Image8
+            app.Image8 = uiimage(app.Panel4);
+            app.Image8.Position = [64 182 213 100];
+            app.Image8.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 013419.png');
+
+            % Create TextArea_11
+            app.TextArea_11 = uitextarea(app.Panel4);
+            app.TextArea_11.Editable = 'off';
+            app.TextArea_11.FontAngle = 'italic';
+            app.TextArea_11.Position = [309 207 361 60];
+            app.TextArea_11.Value = {'Apply if there is an in-plane offset of the lateral system. Usually, these are observable in braced frame (Figure (a)) and shear wall buildings (Figure (b)).'};
+
+            % Create Image9
+            app.Image9 = uiimage(app.Panel4);
+            app.Image9.Position = [65 265 213 100];
+            app.Image9.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-30 013412.png');
+
+            % Create TextArea_12
+            app.TextArea_12 = uitextarea(app.Panel4);
+            app.TextArea_12.Editable = 'off';
+            app.TextArea_12.FontAngle = 'italic';
+            app.TextArea_12.Position = [309 291 361 60];
+            app.TextArea_12.Value = {'Apply if unbraced cripple walls are Cripple Wall observed in the crawlspace of the building. This applies to W1 buildings. If the basement is occupied, consider this condition as a soft story.'};
+
+            % Create NextButton_3
+            app.NextButton_3 = uibutton(app.Panel4, 'push');
+            app.NextButton_3.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_3.Position = [495 45 100 22];
+            app.NextButton_3.Text = 'Next';
+
+            % Create BackButton_3
+            app.BackButton_3 = uibutton(app.Panel4, 'push');
+            app.BackButton_3.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton_3.Position = [98 44 100 22];
+            app.BackButton_3.Text = 'Back';
+
+            % Create Label_4
+            app.Label_4 = uilabel(app.Panel4);
+            app.Label_4.FontColor = [1 0 0];
+            app.Label_4.Position = [249 460 439 22];
+            app.Label_4.Text = 'Check box if a type of Moderate Vertical Irregularity is applicable on the building.';
+
+            % Create Panel3
+            app.Panel3 = uipanel(app.UIFigure);
+            app.Panel3.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel3.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel3.BorderWidth = 3;
+            app.Panel3.Title = 'Severe Vertical Irregularity';
+            app.Panel3.BackgroundColor = [1 1 1];
+            app.Panel3.FontWeight = 'bold';
+            app.Panel3.Position = [3 3 725 539];
+
+            % Create SevereVerticalIrregularityCheckBox
+            app.SevereVerticalIrregularityCheckBox = uicheckbox(app.Panel3);
+            app.SevereVerticalIrregularityCheckBox.ValueChangedFcn = createCallbackFcn(app, @SevereVerticalIrregularityCheckBoxValueChanged, true);
+            app.SevereVerticalIrregularityCheckBox.Text = 'Severe Vertical Irregularity';
+            app.SevereVerticalIrregularityCheckBox.Position = [77 468 162 22];
+
+            % Create Image2
+            app.Image2 = uiimage(app.Panel3);
+            app.Image2.Position = [48 350 253 108];
+            app.Image2.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-29 232035.png');
+
+            % Create Image3
+            app.Image3 = uiimage(app.Panel3);
+            app.Image3.Position = [70 242 209 115];
+            app.Image3.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-29 232300.png');
+
+            % Create Image4
+            app.Image4 = uiimage(app.Panel3);
+            app.Image4.Position = [70 74 209 109];
+            app.Image4.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-29 232306.png');
+
+            % Create Image5
+            app.Image5 = uiimage(app.Panel3);
+            app.Image5.Position = [70 154 209 115];
+            app.Image5.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-29 232328.png');
+
+            % Create TextArea_4
+            app.TextArea_4 = uitextarea(app.Panel3);
+            app.TextArea_4.Editable = 'off';
+            app.TextArea_4.FontSize = 10;
+            app.TextArea_4.FontAngle = 'italic';
+            app.TextArea_4.Position = [319 361 330 96];
+            app.TextArea_4.Value = {'Apply: Soft Story (c) (d) Figure (a): For a W1 house with occupied space over a garage with limited or short wall lengths on both sides of the garage opening. Figure (b): For a W1A building with an open front at the ground story (such as for parking). Figure (c): When one of the stories has less wall or fewer columns than the others (usually the bottom story). Figure (d): When one of the stories is taller than the others (usually the bottom story).'; ''};
+
+            % Create TextArea_5
+            app.TextArea_5 = uitextarea(app.Panel3);
+            app.TextArea_5.Editable = 'off';
+            app.TextArea_5.FontSize = 10;
+            app.TextArea_5.FontAngle = 'italic';
+            app.TextArea_5.Position = [319 257 330 87];
+            app.TextArea_5.Value = {'Apply if the walls of the building do not Setback stack vertically in plan. This irregularity is most severe when the vertical elements of the lateral system at the upper levels are outboard of those at the lower levels as shown in Figure (a). The condition in Figure (b) also triggers this irregularity. If nonstacking walls are known to be'; 'non-structural, this irregularity does not apply. Apply the setback if greater than or equal to 2 feet.'};
+
+            % Create TextArea_6
+            app.TextArea_6 = uitextarea(app.Panel3);
+            app.TextArea_6.Editable = 'off';
+            app.TextArea_6.FontSize = 10;
+            app.TextArea_6.FontAngle = 'italic';
+            app.TextArea_6.Position = [319 104 330 67];
+            app.TextArea_6.Value = {'Apply if: Figure (a): Some columns/piers are much shorter than the typical columns/piers in the same line. Figure (b): The columns/piers are narrow compared to the depth of the beams. Figure (c): There are infill walls that shorten the clear height of the column. Note this deficiency is typically seen in older concrete and steel building types.'};
+
+            % Create TextArea_7
+            app.TextArea_7 = uitextarea(app.Panel3);
+            app.TextArea_7.Editable = 'off';
+            app.TextArea_7.FontSize = 10;
+            app.TextArea_7.FontAngle = 'italic';
+            app.TextArea_7.Position = [319 182 330 60];
+            app.TextArea_7.Value = {'Apply if there is more than a one-story slope from one side of the building to the other. Evaluate as Severe for W1 buildings as shown in Figure (a); evaluate as Moderate for all other building types as \ shown in Figure (b).'};
+
+            % Create NextButton_4
+            app.NextButton_4 = uibutton(app.Panel3, 'push');
+            app.NextButton_4.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_4.Position = [477 37 100 22];
+            app.NextButton_4.Text = 'Next';
+
+            % Create BackButton_2
+            app.BackButton_2 = uibutton(app.Panel3, 'push');
+            app.BackButton_2.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton_2.Position = [125 40 100 22];
+            app.BackButton_2.Text = 'Back';
+
+            % Create Label_5
+            app.Label_5 = uilabel(app.Panel3);
+            app.Label_5.FontColor = [1 0 0];
+            app.Label_5.Position = [249 469 426 22];
+            app.Label_5.Text = 'Check box if a type of Severe Vertical Irregularity is applicable on the building.';
+
+            % Create Panel2
+            app.Panel2 = uipanel(app.UIFigure);
+            app.Panel2.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel2.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel2.BorderWidth = 3;
+            app.Panel2.Title = 'Select the Building Type';
+            app.Panel2.BackgroundColor = [1 1 1];
+            app.Panel2.ButtonDownFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.Panel2.FontWeight = 'bold';
+            app.Panel2.Position = [2 3 726 539];
+
+            % Create BuildingTypeDropDownLabel
+            app.BuildingTypeDropDownLabel = uilabel(app.Panel2);
+            app.BuildingTypeDropDownLabel.HorizontalAlignment = 'right';
+            app.BuildingTypeDropDownLabel.Position = [252 453 77 22];
+            app.BuildingTypeDropDownLabel.Text = 'Building Type';
+
+            % Create BuildingTypeDropDown
+            app.BuildingTypeDropDown = uidropdown(app.Panel2);
+            app.BuildingTypeDropDown.Items = {'Select', 'W1', 'W1A', 'W2', 'S1_MRF', 'S2_BR', 'S3_LM', 'S4_RCSW', 'S5_URMINF', 'C1_MRF', 'C2_SW', 'C3_URMINF', 'PC1_TU', 'PC2', 'RM1_FC', 'RM2_RD', 'URM', 'MH'};
+            app.BuildingTypeDropDown.DropDownOpeningFcn = createCallbackFcn(app, @BuildingTypeDropDownOpening, true);
+            app.BuildingTypeDropDown.ValueChangedFcn = createCallbackFcn(app, @BuildingTypeDropDownValueChanged, true);
+            app.BuildingTypeDropDown.Position = [344 453 100 22];
+            app.BuildingTypeDropDown.Value = 'Select';
+
+            % Create TextArea_2
+            app.TextArea_2 = uitextarea(app.Panel2);
+            app.TextArea_2.Editable = 'off';
+            app.TextArea_2.Position = [85 75 557 355];
+            app.TextArea_2.Value = {'W1 - Light wood frame single- or multiple- family dwellings of one or more stories in height'; 'W1A - Light wood frame multi-unit, multi-story residential buildings with plan areas on each floor of greater than 3,000 square feet'; 'W2 - Wood frame commercial and industrial buildings with a floor area larger than 5,000 square feet'; ''; 'S1 - Steel moment-resisting frame'; 'S2 - Braced steel frame'; 'S3 - Light metal building'; 'S4 - Steel frames with cast-in-place concrete shear walls'; 'S5 - Steel frames with unreinforced masonry infill walls'; ''; 'C1 - Concrete moment-resisting frames'; 'C2 - Concrete shear wall buildings'; 'C3 - Concrete frames with unreinforced masonry infill walls'; ''; 'PC1 - Tilt-up buildings'; 'PC2 - Precast concrete frame buildings'; ''; 'RM1 - Reinforced masonry buildings with flexible diaphragms'; 'RM2 - Reinforced masonry buildings with rigid diaphragms'; ''; 'URM - Unreinforced masonry buildings'; 'MH - Manufactured housing'};
+
+            % Create BackButton
+            app.BackButton = uibutton(app.Panel2, 'push');
+            app.BackButton.ButtonPushedFcn = createCallbackFcn(app, @BackButtonPushed, true);
+            app.BackButton.Position = [48 35 100 22];
+            app.BackButton.Text = 'Back';
+
+            % Create NextButton_2
+            app.NextButton_2 = uibutton(app.Panel2, 'push');
+            app.NextButton_2.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_2.Position = [577 34 100 22];
+            app.NextButton_2.Text = 'Next';
+
+            % Create Panel1
+            app.Panel1 = uipanel(app.UIFigure);
+            app.Panel1.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel1.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel1.BorderWidth = 3;
+            app.Panel1.Title = 'Building Information';
+            app.Panel1.BackgroundColor = [1 1 1];
+            app.Panel1.ButtonDownFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.Panel1.FontWeight = 'bold';
+            app.Panel1.Position = [3 3 725 539];
+
+            % Create BuildingNameEditFieldLabel
+            app.BuildingNameEditFieldLabel = uilabel(app.Panel1);
+            app.BuildingNameEditFieldLabel.HorizontalAlignment = 'right';
+            app.BuildingNameEditFieldLabel.Position = [36 417 83 22];
+            app.BuildingNameEditFieldLabel.Text = 'Building Name';
+
+            % Create BuildingNameEditField
+            app.BuildingNameEditField = uieditfield(app.Panel1, 'text');
+            app.BuildingNameEditField.ValueChangedFcn = createCallbackFcn(app, @BuildingNameEditFieldValueChanged, true);
+            app.BuildingNameEditField.Position = [134 417 255 22];
+
+            % Create AddressEditFieldLabel
+            app.AddressEditFieldLabel = uilabel(app.Panel1);
+            app.AddressEditFieldLabel.HorizontalAlignment = 'right';
+            app.AddressEditFieldLabel.Position = [36 370 49 22];
+            app.AddressEditFieldLabel.Text = 'Address';
+
+            % Create AddressEditField
+            app.AddressEditField = uieditfield(app.Panel1, 'text');
+            app.AddressEditField.ValueChangedFcn = createCallbackFcn(app, @AddressEditFieldValueChanged, true);
+            app.AddressEditField.Position = [134 370 255 22];
+
+            % Create NameofScreenerEditFieldLabel
+            app.NameofScreenerEditFieldLabel = uilabel(app.Panel1);
+            app.NameofScreenerEditFieldLabel.HorizontalAlignment = 'right';
+            app.NameofScreenerEditFieldLabel.Position = [36 325 99 22];
+            app.NameofScreenerEditFieldLabel.Text = 'Name of Screener';
+
+            % Create NameofScreenerEditField
+            app.NameofScreenerEditField = uieditfield(app.Panel1, 'text');
+            app.NameofScreenerEditField.ValueChangedFcn = createCallbackFcn(app, @NameofScreenerEditFieldValueChanged, true);
+            app.NameofScreenerEditField.Position = [160 325 229 22];
+
+            % Create DateofAssessmentDatePickerLabel
+            app.DateofAssessmentDatePickerLabel = uilabel(app.Panel1);
+            app.DateofAssessmentDatePickerLabel.HorizontalAlignment = 'right';
+            app.DateofAssessmentDatePickerLabel.Position = [36 280 112 22];
+            app.DateofAssessmentDatePickerLabel.Text = 'Date of Assessment';
+
+            % Create DateofAssessmentDatePicker
+            app.DateofAssessmentDatePicker = uidatepicker(app.Panel1);
+            app.DateofAssessmentDatePicker.ValueChangedFcn = createCallbackFcn(app, @DateofAssessmentDatePickerValueChanged, true);
+            app.DateofAssessmentDatePicker.Position = [163 280 150 22];
+
+            % Create NextButton_8
+            app.NextButton_8 = uibutton(app.Panel1, 'push');
+            app.NextButton_8.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_8.Position = [566 36 100 22];
+            app.NextButton_8.Text = 'Next';
+
+            % Create IntroductionPanel
+            app.IntroductionPanel = uipanel(app.UIFigure);
+            app.IntroductionPanel.BorderColor = [0.3294 0.5451 0.6902];
+            app.IntroductionPanel.HighlightColor = [0.3294 0.5451 0.6902];
+            app.IntroductionPanel.BorderWidth = 3;
+            app.IntroductionPanel.Title = 'Welcome to BUILDCHECK!';
+            app.IntroductionPanel.BackgroundColor = [1 1 1];
+            app.IntroductionPanel.FontWeight = 'bold';
+            app.IntroductionPanel.Position = [4 3 724 539];
+
+            % Create NextButton_10
+            app.NextButton_10 = uibutton(app.IntroductionPanel, 'push');
+            app.NextButton_10.ButtonPushedFcn = createCallbackFcn(app, @NextButtonPushed, true);
+            app.NextButton_10.Position = [557 39 100 22];
+            app.NextButton_10.Text = 'Next';
+
+            % Create Image15
+            app.Image15 = uiimage(app.IntroductionPanel);
+            app.Image15.Position = [265 330 194 173];
+            app.Image15.ImageSource = fullfile(pathToMLAPP, 'Screenshot 2025-03-31 211420.png');
+
+            % Create TextArea_14
+            app.TextArea_14 = uitextarea(app.IntroductionPanel);
+            app.TextArea_14.Editable = 'off';
+            app.TextArea_14.FontSize = 13;
+            app.TextArea_14.Position = [41 92 628 213];
+            app.TextArea_14.Value = {'BUILDCHECK is a user-friendly tool designed to help engineers, building inspectors, and building owners assess the structural integrity of buildings using FEMA P-154 guidelines. By selecting a building type and checking relevant parameters, the tool will determine whether the structure passes Level 1 screening or requires further assessment.'; ''; 'Reminders:'; '1. Double-check all inputs before proceeding to the next step. Incomplete or incorrect data may lead to inaccurate results.'; '2. This tool is not a substitute for professional structural analysis. '; '3. BUILDCHECK provides preliminary screening and does not replace detailed structural analysis.'; '4. It does not consider material deterioration, construction quality, or detailed seismic performance.'; '5. BUILDCHECK is based on the FEMA P-154 High Seismicity Screening Form. '};
+
+            % Create Panel9
+            app.Panel9 = uipanel(app.UIFigure);
+            app.Panel9.BorderColor = [0.3294 0.5451 0.6902];
+            app.Panel9.HighlightColor = [0.3294 0.5451 0.6902];
+            app.Panel9.BorderWidth = 3;
+            app.Panel9.Title = 'Summary';
+            app.Panel9.BackgroundColor = [1 1 1];
+            app.Panel9.FontWeight = 'bold';
+            app.Panel9.Position = [4 2 723 539];
+
+            % Create SummaryTextAreaLabel
+            app.SummaryTextAreaLabel = uilabel(app.Panel9);
+            app.SummaryTextAreaLabel.HorizontalAlignment = 'right';
+            app.SummaryTextAreaLabel.FontName = 'Times New Roman';
+            app.SummaryTextAreaLabel.FontSize = 14;
+            app.SummaryTextAreaLabel.FontWeight = 'bold';
+            app.SummaryTextAreaLabel.Position = [99 426 64 22];
+            app.SummaryTextAreaLabel.Text = 'Summary';
+
+            % Create SummaryTextArea
+            app.SummaryTextArea = uitextarea(app.Panel9);
+            app.SummaryTextArea.Editable = 'off';
+            app.SummaryTextArea.FontName = 'Times New Roman';
+            app.SummaryTextArea.FontSize = 15;
+            app.SummaryTextArea.Position = [183 233 366 214];
+
+            % Create BackButton_8
+            app.BackButton_8 = uibutton(app.Panel9, 'push');
+            app.BackButton_8.ButtonPushedFcn = createCallbackFcn(app, @BackButton_SummaryPushed, true);
+            app.BackButton_8.Position = [91 43 100 22];
+            app.BackButton_8.Text = 'Back';
+
+            % Create FinishButton
+            app.FinishButton = uibutton(app.Panel9, 'push');
+            app.FinishButton.ButtonPushedFcn = createCallbackFcn(app, @FinishButtonPushed, true);
+            app.FinishButton.Position = [540 44 100 22];
+            app.FinishButton.Text = 'Finish';
+
+            % Create StartOverButton
+            app.StartOverButton = uibutton(app.Panel9, 'push');
+            app.StartOverButton.ButtonPushedFcn = createCallbackFcn(app, @StartOverButtonPushed, true);
+            app.StartOverButton.Position = [318 195 100 22];
+            app.StartOverButton.Text = 'Start Over';
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = BUILDCHECK
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            % Execute the startup function
+            runStartupFcn(app, @startupFcn)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
+end
