@@ -197,7 +197,7 @@ export const BuildingAssessmentsProvider = ({ children }: { children: ReactNode 
     })
 
     // Add copyright footer to each worksheet
-    const copyrightText = `© ${new Date().getFullYear()} BUILDCHECK - Generated on ${format(new Date(), "PP")}`
+    const copyrightText = `(c) 2025 BUILDCHECK. KNDA/MJGF/SMBF - Generated on ${format(new Date(), "PP")}`
     for (const sheetName of wb.SheetNames) {
       const ws = wb.Sheets[sheetName]
       const range = XLSX.utils.decode_range(ws["!ref"] || "A1")

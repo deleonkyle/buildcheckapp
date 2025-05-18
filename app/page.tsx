@@ -312,7 +312,7 @@ export default function Home() {
         </div>
 
         <div className="mb-6">
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4 flex items-start">
+          <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4 flex items-start">
             <Info className="text-blue-500 w-5 h-5 flex-shrink-0 mt-0.5" />
             <p className="text-xs sm:text-sm text-blue-700 ml-2">
               Create multiple building assessments and export them all to Excel. Select a building to edit or create a new one.

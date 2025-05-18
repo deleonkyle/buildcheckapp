@@ -168,7 +168,7 @@ export default function Results({
       // Add footer
       pdf.setFontSize(8)
       pdf.setTextColor(100, 100, 100)
-      const footerText = `BUILDCHECK Assessment - Generated on ${format(new Date(), "PP")}`
+      const footerText = `(c) 2025 BUILDCHECK. KNDA/MJGF/SMBF - Generated on ${format(new Date(), "PP")}`
       pdf.text(footerText, pdfWidth / 2, pdfHeight - 10, { align: "center" })
 
       // Save PDF

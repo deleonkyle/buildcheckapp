@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useBuildingAssessments, BuildingAssessment } from "@/contexts/BuildingAssessmentsContext"
 import { format } from "date-fns"
-import { PlusCircle, Building, FileDown, Trash2, Edit, CheckCircle, AlertTriangle } from "lucide-react"
+import { PlusCircle, Building, FileDown, Trash2, Edit, CheckCircle, AlertTriangle, HelpCircle, Smartphone, ArrowRight } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function BuildingAssessmentManager() {
@@ -92,9 +92,10 @@ export default function BuildingAssessmentManager() {
       </CardHeader>
       <CardContent className="p-3 sm:p-4">
         <Tabs defaultValue="buildings" className="w-full">
-          <TabsList className="w-full mb-3 grid grid-cols-2 gap-1">
+          <TabsList className="w-full mb-3 grid grid-cols-3 gap-1">
             <TabsTrigger value="buildings" className="text-sm py-1.5">Buildings</TabsTrigger>
             <TabsTrigger value="export" className="text-sm py-1.5">Export</TabsTrigger>
+            <TabsTrigger value="help" className="text-sm py-1.5">Help</TabsTrigger>
           </TabsList>
 
           <TabsContent value="buildings" className="space-y-3 sm:space-y-4">
@@ -206,6 +207,61 @@ export default function BuildingAssessmentManager() {
                   You need at least one completed assessment to export
                 </p>
               )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="help" className="space-y-3 sm:space-y-4">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200">
+              <h3 className="font-medium text-gray-800 mb-2 flex items-center text-sm sm:text-base gap-1.5 sm:gap-2">
+                <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 text-blue-500" />
+                Mobile Usage Instructions
+              </h3>
+              
+              <div className="space-y-3 sm:space-y-4 mt-3">
+                <div className="p-2.5 sm:p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                  <h4 className="font-medium text-blue-600 text-xs sm:text-sm flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5 flex-shrink-0" />
+                    Adding a New Building
+                  </h4>
+                  <ol className="mt-2 space-y-1.5 text-xs sm:text-sm pl-4 list-decimal">
+                    <li>Tap the "Add Building" button at the top</li>
+                    <li>Fill in building details through each step</li>
+                    <li>Use the navigation buttons to move between screens</li>
+                    <li>Your progress is saved automatically</li>
+                  </ol>
+                </div>
+                
+                <div className="p-2.5 sm:p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                  <h4 className="font-medium text-blue-600 text-xs sm:text-sm flex items-center gap-1.5">
+                    <Building className="w-3.5 h-3.5 flex-shrink-0" />
+                    Managing Buildings
+                  </h4>
+                  <ol className="mt-2 space-y-1.5 text-xs sm:text-sm pl-4 list-decimal">
+                    <li>Tap any building in the list to select and edit it</li>
+                    <li>Selected buildings have a blue highlight</li>
+                    <li>Tap the trash icon to delete a building</li>
+                    <li>Completed buildings display a score badge</li>
+                  </ol>
+                </div>
+                
+                <div className="p-2.5 sm:p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                  <h4 className="font-medium text-blue-600 text-xs sm:text-sm flex items-center gap-1.5">
+                    <FileDown className="w-3.5 h-3.5 flex-shrink-0" />
+                    Exporting Data
+                  </h4>
+                  <ol className="mt-2 space-y-1.5 text-xs sm:text-sm pl-4 list-decimal">
+                    <li>Switch to the "Export" tab</li>
+                    <li>Tap "Export to Excel" to download all assessments</li>
+                    <li>In the Results screen for any building, you can also:
+                      <ul className="pl-4 mt-1 list-disc">
+                        <li>Download PDF reports</li>
+                        <li>Share via email</li>
+                        <li>Copy assessment data</li>
+                      </ul>
+                    </li>
+                  </ol>
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

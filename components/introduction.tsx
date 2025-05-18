@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronRight, Shield, CheckCircle } from "lucide-react"
+import { ChevronRight, Shield, CheckCircle, Smartphone, PlusCircle, Building, FileDown } from "lucide-react"
 
 interface IntroductionProps {
   onNext: () => void
@@ -45,6 +45,36 @@ export default function Introduction({ onNext }: IntroductionProps) {
                 <span>{item}</span>
               </li>
             ))}
+          </ul>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+          <h3 className="font-medium text-gray-700 flex items-center gap-2 mb-3">
+            <Smartphone className="w-4 h-4" />
+            How to Use on Mobile
+          </h3>
+          <ul className="space-y-3.5 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <PlusCircle className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Adding Buildings</p>
+                <p className="text-gray-600 text-xs mt-0.5">Tap the "Add Building" button in the Buildings tab to create a new assessment.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <Building className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Building Selection</p>
+                <p className="text-gray-600 text-xs mt-0.5">Tap on any existing building in the list to select and continue working on it.</p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <FileDown className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium">Export & Sharing</p>
+                <p className="text-gray-600 text-xs mt-0.5">Switch to the Export tab to download all assessment data in Excel format. In the Results screen, you can also download PDF reports or share via email.</p>
+              </div>
+            </li>
           </ul>
         </div>
       </CardContent>
